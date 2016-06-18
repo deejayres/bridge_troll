@@ -87,7 +87,7 @@ class Event < ActiveRecord::Base
   end
 
   def all_locations
-    ([location] + event_sessions.map(&:location)).compact
+    @all_locations ||= ([location] + event_sessions.map(&:location)).compact
   end
 
   def has_multiple_locations?
@@ -329,7 +329,7 @@ class Event < ActiveRecord::Base
   end
 
   def code_of_conduct_url
-    chapter.organization.code_of_conduct_url || DEFAULT_CODE_OF_CONDUCT_URL
+    chapter.try(:code_of_conduct_url) || DEFAULT_CODE_OF_CONDUCT_URL
   end
 
   def update_rsvp_counts

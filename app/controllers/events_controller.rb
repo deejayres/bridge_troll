@@ -1,6 +1,6 @@
 class EventsController < ApplicationController
   before_action :authenticate_user!, except: [:index, :feed, :show, :levels]
-  before_action :find_event, except: [:index, :feed, :create, :new]
+  before_action :find_event, except: [:index, :show, :feed, :create, :new]
   before_action :set_time_zone, only: [:create, :update]
   before_action :set_empty_location, only: [:new, :create]
 
@@ -8,12 +8,12 @@ class EventsController < ApplicationController
     skip_authorization
     respond_to do |format|
       format.html do
-        @events = Event.upcoming.published_or_visible_to(current_user).includes(:location, :region, :chapter, :organization, event_sessions: :location)
+        @events = Event.upcoming.published_or_visible_to(current_user)
+                    .includes(:location, :region, :chapter, :organization, event_sessions: :location)
         @event_regions = @events.map(&:region).compact.uniq
-        @past_events = EventList.new('past').combined_events
       end
       format.json do
-        render json: EventList.new(params[:type], params.slice(:organization_id))
+        render json: EventList.new(params[:type], params.slice(:organization_id, :serialization_format, :start, :length, :draw))
       end
     end
   end
@@ -34,6 +34,7 @@ class EventsController < ApplicationController
 
   def show
     skip_authorization
+    @event = Event.includes(event_sessions: :location).find(params[:id])
     if user_signed_in? && !@event.historical?
       @can_edit = policy(@event).update?
       @can_publish = policy(@event).publish?
@@ -50,12 +51,6 @@ class EventsController < ApplicationController
       Role::VOLUNTEER => @event.ordered_rsvps(Role::VOLUNTEER, waitlisted: true).to_a,
       Role::STUDENT => @event.ordered_rsvps(Role::STUDENT, waitlisted: true).to_a
     }
-    regions = Region.includes(:users)
-                 .where('users.allow_event_email = ?', true)
-                 .references(:users)
-    @region_user_counts = regions.each_with_object({}) do |region, hsh|
-      hsh[region.id] = region.users.length
-    end
   end
 
   def new

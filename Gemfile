@@ -1,11 +1,11 @@
 source 'https://rubygems.org'
 
-ruby '2.3.0'
+ruby '2.3.1'
 
 gem 'dotenv-rails', groups: [:development, :test]
 
 gem 'rails', '4.2.6'
-gem 'devise', '~> 3.5.0'
+gem 'devise', '~> 4.1.0'
 gem 'pundit'
 gem 'puma'
 gem 'jquery-rails'
@@ -44,7 +44,6 @@ gem 'bootstrap-sass'
 gem 'font-awesome-rails'
 gem 'jquery-ui-rails'
 gem 'backbone-on-rails'
-gem 'masonry-rails'
 
 group :development do
   gem 'quiet_assets'

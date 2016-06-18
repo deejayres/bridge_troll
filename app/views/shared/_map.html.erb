@@ -9,16 +9,18 @@
   end
 %>
 <script src="//maps.google.com/maps/api/js?v=3.18&sensor=false&libraries=geometry"></script>
-<script src='//google-maps-utility-library-v3.googlecode.com/svn/tags/markerclustererplus/2.1.2/markerclustererplus/src/markerclusterer_packed.js'></script>
+<%= javascript_include_tag 'markerclustererplus/dist/markerclusterer.min.js' %>
 
 <script>
-  var handler = Gmaps.build('Google');
-  handler.buildMap({provider: {}, internal: {id: 'gmaps4rails_map'}}, function(){
-    var markers = handler.addMarkers(<%=raw markers.to_json %>);
-    handler.bounds.extendWith(markers);
-    handler.fitMapToBounds();
-    <% if locations.length == 1 %>
+  window.whenReady(function () {
+    var handler = Gmaps.build('Google');
+    handler.buildMap({provider: {}, internal: {id: 'gmaps4rails_map'}}, function(){
+      var markers = handler.addMarkers(<%=raw markers.to_json %>);
+      handler.bounds.extendWith(markers);
+      handler.fitMapToBounds();
+      <% if locations.length == 1 %>
       handler.getMap().setZoom(15);
-    <% end %>
+      <% end %>
+    });
   });
 </script>
